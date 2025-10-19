@@ -11,7 +11,7 @@ import SwiftUI
 struct RunnerInclineAppApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            CourseListView() // will create this soon
         }
     }
 }

@@ -6,13 +6,30 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		3E86CFF92EA4979600121F8A /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = 3E86CFF82EA4979600121F8A /* Supabase */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		3E86CFD32EA4895E00121F8A /* RunnerInclineApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RunnerInclineApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		3E86CFF62EA4969700121F8A /* Exceptions for "RunnerInclineApp" folder in "RunnerInclineApp" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 3E86CFD22EA4895E00121F8A /* RunnerInclineApp */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		3E86CFD52EA4895E00121F8A /* RunnerInclineApp */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				3E86CFF62EA4969700121F8A /* Exceptions for "RunnerInclineApp" folder in "RunnerInclineApp" target */,
+			);
 			path = RunnerInclineApp;
 			sourceTree = "<group>";
 		};
@@ -23,6 +40,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3E86CFF92EA4979600121F8A /* Supabase in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -33,6 +51,7 @@
 			isa = PBXGroup;
 			children = (
 				3E86CFD52EA4895E00121F8A /* RunnerInclineApp */,
+				3E86CFF72EA4979600121F8A /* Frameworks */,
 				3E86CFD42EA4895E00121F8A /* Products */,
 			);
 			sourceTree = "<group>";
@@ -43,6 +62,13 @@
 				3E86CFD32EA4895E00121F8A /* RunnerInclineApp.app */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		3E86CFF72EA4979600121F8A /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -65,6 +91,7 @@
 			);
 			name = RunnerInclineApp;
 			packageProductDependencies = (
+				3E86CFF82EA4979600121F8A /* Supabase */,
 			);
 			productName = RunnerInclineApp;
 			productReference = 3E86CFD32EA4895E00121F8A /* RunnerInclineApp.app */;
@@ -256,6 +283,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = RunnerInclineApp/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -287,6 +315,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = RunnerInclineApp/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -342,6 +371,14 @@
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		3E86CFF82EA4979600121F8A /* Supabase */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 3E86CFE12EA4910100121F8A /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Supabase;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 3E86CFCB2EA4895E00121F8A /* Project object */;
 }
