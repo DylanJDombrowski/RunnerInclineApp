@@ -9,9 +9,13 @@ import SwiftUI
 
 @main
 struct RunnerInclineAppApp: App {
+    init() {
+        print("🚀 App launched successfully")
+    }
+
     var body: some Scene {
         WindowGroup {
-            CourseListView() // will create this soon
+            CourseListView()
         }
     }
 }

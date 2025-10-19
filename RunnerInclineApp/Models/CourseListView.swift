@@ -9,14 +9,16 @@ import SwiftUI
 
 struct CourseListView: View {
     @StateObject var vm = CourseViewModel()
-    
+
     var body: some View {
-        NavigationView {
+        NavigationStack {
             List(vm.courses) { course in
-                VStack(alignment: .leading) {
-                    Text(course.name).font(.headline)
-                    if let city = course.city {
-                        Text(city).font(.subheadline).foregroundColor(.gray)
+                NavigationLink(destination: CourseDetailView(course: course)) {
+                    VStack(alignment: .leading) {
+                        Text(course.name).font(.headline)
+                        if let city = course.city {
+                            Text(city).font(.subheadline).foregroundColor(.secondary)
+                        }
                     }
                 }
             }
@@ -26,6 +28,3 @@ struct CourseListView: View {
     }
 }
 
-#Preview {
-    CourseListView()
-}
