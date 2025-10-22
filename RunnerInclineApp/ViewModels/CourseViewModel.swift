@@ -17,7 +17,6 @@ final class CourseViewModel: ObservableObject {
         Task {
             do {
                 let response: [Course] = try await SupabaseService.shared.client
-                    .database
                     .from("courses")
                     .select()
                     .execute()

@@ -9,7 +9,7 @@ import SwiftUI
 import AuthenticationServices
 
 struct AuthenticationView: View {
-    @StateObject private var authManager = AuthenticationManager()
+    @EnvironmentObject var authManager: AuthenticationManager
     @Environment(\.dismiss) private var dismiss
     
     var body: some View {
@@ -89,15 +89,33 @@ struct AuthenticationView: View {
                 do {
                     try await authManager.signInWithApple(credential: appleIDCredential)
                 } catch {
-                    print("❌ Sign in failed: \(error)")
+                    print("❌ Authentication failed: \(error.localizedDescription)")
+                    // Could show an alert here if needed
                 }
             }
         case .failure(let error):
-            print("❌ Sign in with Apple failed: \(error)")
+            // Handle Apple ID authorization errors
+            let nsError = error as NSError
+            if nsError.domain == "com.apple.AuthenticationServices.AuthorizationError" {
+                switch nsError.code {
+                case 1000:
+                    print("ℹ️ User canceled Apple ID sign in")
+                    // This is normal - user tapped "Cancel", no need for error message
+                case 1001:
+                    print("❌ Apple ID sign in failed: Unknown error")
+                case 1004:
+                    print("❌ Apple ID sign in failed: Not handled")
+                default:
+                    print("❌ Apple ID authorization error: \(error.localizedDescription)")
+                }
+            } else {
+                print("❌ Sign in error: \(error.localizedDescription)")
+            }
         }
     }
 }
 
 #Preview {
     AuthenticationView()
+        .environmentObject(AuthenticationManager())
 }

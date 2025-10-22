@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Combine
 import Supabase
 import AuthenticationServices
 import SwiftUI
@@ -56,10 +57,11 @@ final class AuthenticationManager: ObservableObject {
             
             self.user = session.user
             self.isAuthenticated = true
+            print("✅ Successfully signed in with Apple ID")
             
         } catch {
-            print("❌ Sign in with Apple failed: \(error)")
-            throw error
+            print("❌ Supabase sign in failed: \(error.localizedDescription)")
+            throw AuthError.signInFailed
         }
         
         isLoading = false
