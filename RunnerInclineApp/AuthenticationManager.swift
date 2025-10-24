@@ -13,17 +13,32 @@ import SwiftUI
 
 @MainActor
 final class AuthenticationManager: ObservableObject {
+    static let shared = AuthenticationManager()
+    
     @Published var user: User?
     @Published var isAuthenticated = false
     @Published var isLoading = false
     
     private let supabase = SupabaseService.shared.client
     
-    init() {
+    private init() {
         // Check if user is already signed in
         Task {
             await checkCurrentUser()
         }
+    }
+    
+    var currentUser: User? {
+        return user
+    }
+    
+    func checkAuthStatus() async {
+        await checkCurrentUser()
+    }
+    
+    func signInWithApple() async {
+        // This method for convenience - actual sign in happens via ASAuthorizationAppleIDCredential
+        // Can be used to trigger the Apple ID flow from buttons
     }
     
     func checkCurrentUser() async {

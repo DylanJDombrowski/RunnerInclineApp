@@ -23,7 +23,7 @@ final class SegmentViewModel: ObservableObject {
                     .from("segments")
                     .select()
                     .eq("course_id", value: courseID)
-                    .order("mile_start", ascending: true)
+                    .order("segment_index", ascending: true)
                     .execute()
                     .value
                 self.segments = response

@@ -6,6 +6,8 @@
 //
 
 import SwiftUI
+import Auth
+import Supabase
 
 struct MyCoursesView: View {
     @StateObject private var viewModel = CourseViewModel()
@@ -14,83 +16,97 @@ struct MyCoursesView: View {
     
     var body: some View {
         NavigationStack {
-            Group {
-                if !authManager.isAuthenticated {
-                    // Not signed in state
-                    ContentUnavailableView {
-                        Label("Sign In Required", systemImage: "person.circle")
-                    } description: {
-                        Text("Sign in to upload and manage your courses")
-                    } actions: {
-                        NavigationLink(destination: AuthenticationView()) {
-                            Text("Sign In")
-                                .font(.headline)
-                                .foregroundColor(.white)
-                                .frame(maxWidth: .infinity)
-                                .padding()
-                                .background(Color.blue)
-                                .cornerRadius(12)
-                        }
-                        .padding(.horizontal)
-                    }
+            if !authManager.isAuthenticated {
+                // Not signed in state
+                VStack(spacing: 20) {
+                    Image(systemName: "person.circle")
+                        .font(.system(size: 60))
+                        .foregroundColor(.gray)
                     
-                } else if userCourses.isEmpty {
-                    // No courses state
-                    ContentUnavailableView {
-                        Label("No Courses Yet", systemImage: "map")
-                    } description: {
-                        Text("Upload your first GPX file to get started")
-                    } actions: {
-                        Button {
-                            showingUpload = true
-                        } label: {
-                            Text("Upload Course")
-                                .font(.headline)
-                                .foregroundColor(.white)
-                                .frame(maxWidth: .infinity)
-                                .padding()
-                                .background(Color.blue)
-                                .cornerRadius(12)
-                        }
-                        .padding(.horizontal)
-                    }
+                    Text("Sign In Required")
+                        .font(.headline)
                     
-                } else {
-                    // Courses list
-                    List(userCourses) { course in
-                        NavigationLink(destination: CourseDetailView(course: course)) {
-                            CourseRowView(course: course)
-                        }
-                        .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
+                    Text("Sign in to upload and manage your courses")
+                        .multilineTextAlignment(.center)
+                        .foregroundColor(.secondary)
+                    
+                    NavigationLink(destination: AuthenticationView()) {
+                        Text("Sign In")
+                            .font(.headline)
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.blue)
+                            .cornerRadius(12)
                     }
-                    .listStyle(.plain)
-                    .refreshable {
-                        viewModel.loadCourses()
+                    .padding(.horizontal)
+                }
+                .padding()
+                
+            } else if userCourses.isEmpty {
+                // No courses state
+                VStack(spacing: 20) {
+                    Image(systemName: "map")
+                        .font(.system(size: 60))
+                        .foregroundColor(.gray)
+                    
+                    Text("No Courses Yet")
+                        .font(.headline)
+                    
+                    Text("Upload your first GPX file to get started")
+                        .multilineTextAlignment(.center)
+                        .foregroundColor(.secondary)
+                    
+                    Button {
+                        showingUpload = true
+                    } label: {
+                        Text("Upload Course")
+                            .font(.headline)
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.blue)
+                            .cornerRadius(12)
+                    }
+                    .padding(.horizontal)
+                }
+                .padding()
+                
+            } else {
+                // Courses list
+                List(userCourses) { course in
+                    NavigationLink(destination: CourseDetailView(course: course)) {
+                        CourseRowView(course: course)
+                    }
+                    .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
+                }
+                .listStyle(.plain)
+                .refreshable {
+                    viewModel.fetchCourses()
+                }
+            }
+        }
+        .navigationTitle("My Courses")
+        .toolbar {
+            if authManager.isAuthenticated {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        showingUpload = true
+                    } label: {
+                        Image(systemName: "plus")
+                            .font(.headline)
+                            .foregroundColor(.blue)
                     }
                 }
             }
-            .navigationTitle("My Courses")
-            .toolbar {
-                if authManager.isAuthenticated {
-                    ToolbarItem(placement: .topBarTrailing) {
-                        Button {
-                            showingUpload = true
-                        } label: {
-                            Image(systemName: "plus")
-                                .font(.headline)
-                                .foregroundColor(.blue)
-                        }
-                    }
-                }
+        }
+        .sheet(isPresented: $showingUpload) {
+            NavigationStack {
+                GPXUploadView()
             }
-            .sheet(isPresented: $showingUpload) {
-                NavigationStack {
-                    GPXUploadView()
-                }
-            }
-            .onAppear {
-                viewModel.loadCourses()
-            }
+        }
+        .onAppear {
+            viewModel.fetchCourses()
         }
     }
     

@@ -27,15 +27,33 @@ final class SupabaseService {
     
     /// Upload GPX file to Supabase Storage
     func uploadGPXFile(data: Data, fileName: String) async throws -> String {
-        let uploadResponse = try await client.storage
-            .from("courses")
-            .upload(fileName, data: data, options: .init(contentType: "application/gpx+xml"))
+        print("☁️ SupabaseService: Starting GPX upload...")
+        print("📁 Filename: \(fileName)")
+        print("💾 Data size: \(data.count) bytes")
         
-        return uploadResponse.path
+        do {
+            let uploadResponse = try await client.storage
+                .from("courses")
+                .upload(fileName, data: data, options: .init(contentType: "application/gpx+xml"))
+            
+            print("✅ SupabaseService: Upload successful")
+            print("📍 File path: \(uploadResponse.path)")
+            return uploadResponse.path
+            
+        } catch {
+            print("❌ SupabaseService: Upload failed")
+            print("❌ Error: \(error)")
+            print("❌ Localized: \(error.localizedDescription)")
+            throw error
+        }
     }
     
     /// Trigger Edge Function to process uploaded GPX
     func processGPXFile(filePath: String, courseId: UUID) async throws {
+        print("⚙️ SupabaseService: Starting Edge Function call...")
+        print("🔗 GPX path: \(filePath)")
+        print("🆔 Course ID: \(courseId)")
+        
         struct ProcessGPXPayload: Codable {
             let gpx_path: String
             let course_id: String
@@ -46,14 +64,32 @@ final class SupabaseService {
             course_id: courseId.uuidString
         )
         
-        try await client.functions
-            .invoke("process-gpx", options: .init(body: payload))
+        print("📦 Payload: \(payload)")
+        
+        do {
+            let response = try await client.functions
+                .invoke("process-gpx", options: .init(body: payload))
+            
+            print("✅ SupabaseService: Edge Function call successful")
+            print("📄 Response: \(String(describing: response))")
+            
+        } catch {
+            print("❌ SupabaseService: Edge Function call failed")
+            print("❌ Error: \(error)")
+            print("❌ Localized: \(error.localizedDescription)")
+            throw error
+        }
     }
     
     // MARK: - Database Operations
     
     /// Create a new course entry (requires authentication)
     func createCourse(name: String, city: String?, distanceMiles: Double?, gpxUrl: String?) async throws -> Course {
+        print("📊 SupabaseService: Starting course creation...")
+        print("📝 Name: \(name)")
+        print("🏙️ City: \(city ?? "N/A")")
+        print("📏 Distance: \(distanceMiles ?? 0.0) miles")
+        
         struct CourseInsert: Codable {
             let name: String
             let city: String?
@@ -63,26 +99,42 @@ final class SupabaseService {
             let created_by: UUID?
         }
         
-        // Get current user
-        let user = try await client.auth.user()
-        
-        let courseData = CourseInsert(
-            name: name,
-            city: city,
-            distance_miles: distanceMiles,
-            gpx_url: gpxUrl,
-            verified: false,
-            created_by: user.id
-        )
-        
-        let response: Course = try await client
-            .from("courses")
-            .insert(courseData)
-            .select()
-            .single()
-            .execute()
-            .value
-        
-        return response
+        do {
+            // Get current user
+            print("👤 Getting current user...")
+            let user = try await client.auth.user()
+            print("✅ User ID: \(user.id)")
+            
+            let courseData = CourseInsert(
+                name: name,
+                city: city,
+                distance_miles: distanceMiles,
+                gpx_url: gpxUrl,
+                verified: false,
+                created_by: user.id
+            )
+            
+            print("📦 Course data: \(courseData)")
+            print("💾 Inserting course into database and returning the actual ID...")
+            
+            // Insert and get the actual course back with the real database ID
+            let response: Course = try await client
+                .from("courses")
+                .insert(courseData)
+                .select()
+                .single()
+                .execute()
+                .value
+            
+            print("✅ Course inserted with actual database ID: \(response.id)")
+            print("✅ SupabaseService: Course creation complete")
+            return response
+            
+        } catch {
+            print("❌ SupabaseService: Course creation failed")
+            print("❌ Error: \(error)")
+            print("❌ Localized: \(error.localizedDescription)")
+            throw error
+        }
     }
 }

@@ -10,9 +10,9 @@ import Foundation
 struct Segment: Identifiable, Codable {
     let id: UUID
     let course_id: UUID
-    let mile_start: Double
-    let mile_end: Double
-    let incline_percent: Double
-    let elevation_ft: Double?
-    let grade_direction: String?
+    let segment_index: Int
+    let distance_miles: Double
+    let elevation_ft: Double
+    let grade_percent: Double?
+    let created_at: String?
 }

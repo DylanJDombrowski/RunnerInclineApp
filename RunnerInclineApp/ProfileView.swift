@@ -6,163 +6,131 @@
 //
 
 import SwiftUI
+import Auth
+import Supabase
 
 struct ProfileView: View {
     @StateObject private var authManager = AuthenticationManager.shared
+    @State private var showingAuth = false
     
     var body: some View {
         NavigationStack {
-            VStack(spacing: 20) {
+            VStack(spacing: 24) {
                 if authManager.isAuthenticated {
                     // Authenticated State
-                    VStack(spacing: 16) {
-                        // User info
-                        VStack(spacing: 8) {
-                            Image(systemName: "person.circle.fill")
-                                .font(.system(size: 60))
-                                .foregroundColor(.blue)
+                    VStack(spacing: 20) {
+                        // User avatar section
+                        VStack(spacing: 12) {
+                            Circle()
+                                .fill(Color.blue.gradient)
+                                .frame(width: 80, height: 80)
+                                .overlay {
+                                    Image(systemName: "person.fill")
+                                        .font(.system(size: 36))
+                                        .foregroundColor(.white)
+                                }
                             
-                            if let user = authManager.currentUser {
-                                Text(user.email ?? "Unknown User")
-                                    .font(.headline)
-                                Text("ID: \(user.id.uuidString.prefix(8))...")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
+                            VStack(spacing: 4) {
+                                if let user = authManager.currentUser {
+                                    Text(user.email ?? "Unknown User")
+                                        .font(.headline)
+                                    Text("User ID: \(user.id.uuidString.prefix(8))...")
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+                                }
                             }
                         }
                         
-                        Divider()
-                        
-                        // Actions
-                        VStack(spacing: 12) {
-                            NavigationLink(destination: MyCourses()) {
-                                HStack {
-                                    Image(systemName: "map")
-                                    Text("My Uploaded Courses")
-                                    Spacer()
-                                    Image(systemName: "chevron.right")
-                                }
-                                .padding()
-                                .background(Color.blue.opacity(0.1))
-                                .cornerRadius(8)
-                            }
+                        // Quick stats card
+                        VStack(spacing: 16) {
+                            Text("Account Details")
+                                .font(.headline)
+                                .frame(maxWidth: .infinity, alignment: .leading)
                             
-                            Button(action: {
-                                Task {
-                                    await authManager.signOut()
-                                }
-                            }) {
-                                HStack {
-                                    Image(systemName: "rectangle.portrait.and.arrow.right")
-                                    Text("Sign Out")
-                                }
-                                .frame(maxWidth: .infinity)
-                                .padding()
-                                .background(Color.red.opacity(0.1))
-                                .foregroundColor(.red)
-                                .cornerRadius(8)
+                            VStack(spacing: 12) {
+                                InfoRow(icon: "applelogo", title: "Sign-in Method", value: "Apple ID")
+                                InfoRow(icon: "calendar", title: "Member Since", value: "Today") // Could be calculated from user.created_at
+                                InfoRow(icon: "checkmark.shield", title: "Status", value: "Verified")
                             }
+                        }
+                        .padding()
+                        .background(Color(.systemGray6))
+                        .cornerRadius(12)
+                        
+                        // Sign out button
+                        Button(action: {
+                            Task {
+                                await authManager.signOut()
+                            }
+                        }) {
+                            HStack {
+                                Image(systemName: "rectangle.portrait.and.arrow.right")
+                                Text("Sign Out")
+                            }
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.red.opacity(0.1))
+                            .foregroundColor(.red)
+                            .cornerRadius(12)
                         }
                     }
                     .padding()
                     
                 } else {
                     // Not Authenticated State
-                    VStack(spacing: 16) {
-                        Image(systemName: "person.circle")
-                            .font(.system(size: 60))
-                            .foregroundColor(.gray)
-                        
-                        Text("Not Signed In")
-                            .font(.headline)
-                        
-                        Text("Sign in to upload courses and track your progress")
-                            .multilineTextAlignment(.center)
-                            .foregroundColor(.secondary)
-                        
-                        Button(action: {
-                            Task {
-                                await authManager.signInWithApple()
-                            }
-                        }) {
+                    ContentUnavailableView {
+                        Label("Welcome to Runner Incline", systemImage: "figure.run")
+                    } description: {
+                        Text("Sign in to upload courses, track your progress, and join the community")
+                    } actions: {
+                        Button {
+                            showingAuth = true
+                        } label: {
                             HStack {
                                 Image(systemName: "applelogo")
                                 Text("Sign in with Apple")
                             }
+                            .font(.headline)
+                            .foregroundColor(.white)
                             .frame(maxWidth: .infinity)
                             .padding()
                             .background(Color.black)
-                            .foregroundColor(.white)
-                            .cornerRadius(8)
+                            .cornerRadius(12)
                         }
+                        .padding(.horizontal)
                     }
-                    .padding()
                 }
                 
                 Spacer()
             }
             .navigationTitle("Profile")
+            .sheet(isPresented: $showingAuth) {
+                AuthenticationView()
+            }
         }
     }
 }
 
-// Simple view for user's courses
-struct MyCourses: View {
-    @StateObject private var viewModel = CourseViewModel()
-    @StateObject private var authManager = AuthenticationManager.shared
+struct InfoRow: View {
+    let icon: String
+    let title: String
+    let value: String
     
     var body: some View {
-        List {
-            if viewModel.courses.isEmpty {
-                Text("No courses uploaded yet")
-                    .foregroundColor(.secondary)
-            } else {
-                ForEach(userCourses) { course in
-                    NavigationLink(destination: CourseDetailView(course: course)) {
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text(course.name)
-                                .font(.headline)
-                            
-                            if let city = course.city {
-                                Text(city)
-                                    .font(.subheadline)
-                                    .foregroundColor(.secondary)
-                            }
-                            
-                            HStack {
-                                if course.verified {
-                                    Label("Verified", systemImage: "checkmark.circle.fill")
-                                        .font(.caption)
-                                        .foregroundColor(.green)
-                                } else {
-                                    Label("Pending Review", systemImage: "clock")
-                                        .font(.caption)
-                                        .foregroundColor(.orange)
-                                }
-                                
-                                Spacer()
-                                
-                                if let distance = course.distance_miles {
-                                    Text("\(distance, specifier: "%.1f") mi")
-                                        .font(.caption)
-                                        .foregroundColor(.secondary)
-                                }
-                            }
-                        }
-                        .padding(.vertical, 4)
-                    }
-                }
-            }
+        HStack {
+            Image(systemName: icon)
+                .foregroundColor(.blue)
+                .frame(width: 20)
+            
+            Text(title)
+                .foregroundColor(.secondary)
+            
+            Spacer()
+            
+            Text(value)
+                .fontWeight(.medium)
         }
-        .navigationTitle("My Courses")
-        .onAppear {
-            viewModel.loadCourses()
-        }
-    }
-    
-    private var userCourses: [Course] {
-        guard let userId = authManager.currentUser?.id else { return [] }
-        return viewModel.courses.filter { $0.created_by == userId }
+        .font(.subheadline)
     }
 }
 

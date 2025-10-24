@@ -93,10 +93,19 @@ struct CourseDetailView: View {
                         
                         Chart(vm.segments) { segment in
                             LineMark(
-                                x: .value("Mile", segment.mile_start),
-                                y: .value("Incline %", segment.incline_percent)
+                                x: .value("Mile", segment.distance_miles),
+                                y: .value("Elevation", segment.elevation_ft)
                             )
                             .foregroundStyle(.blue)
+                            
+                            // Add grade line if available
+                            if let grade = segment.grade_percent {
+                                LineMark(
+                                    x: .value("Mile", segment.distance_miles),
+                                    y: .value("Grade %", grade)
+                                )
+                                .foregroundStyle(.red.opacity(0.6))
+                            }
                         }
                         .frame(height: 200)
                         .chartYAxis {
@@ -131,17 +140,26 @@ struct CourseDetailView: View {
                         LazyVStack(spacing: 8) {
                             ForEach(vm.segments.prefix(15)) { segment in
                                 HStack {
-                                    Text("Mile \(segment.mile_start, specifier: "%.1f")–\(segment.mile_end, specifier: "%.1f")")
+                                    Text("Segment \(segment.segment_index + 1): \(segment.distance_miles, specifier: "%.2f") mi")
                                         .font(.subheadline)
                                     Spacer()
-                                    HStack(spacing: 4) {
-                                        Text("\(segment.incline_percent, specifier: "%.1f")%")
+                                    HStack(spacing: 8) {
+                                        Text("\(Int(segment.elevation_ft)) ft")
                                             .font(.subheadline.weight(.medium))
-                                            .foregroundColor(inclineColor(segment.incline_percent))
+                                            .foregroundColor(.blue)
+                                            
+                                        if let grade = segment.grade_percent {
+                                            Text("\(grade, specifier: "%.1f")%")
+                                                .font(.subheadline.weight(.medium))
+                                                .foregroundColor(gradeColor(grade))
+                                        }
+                                    }
                                         
-                                        Image(systemName: inclineIcon(segment.incline_percent))
-                                            .font(.caption)
-                                            .foregroundColor(inclineColor(segment.incline_percent))
+                                        if let grade = segment.grade_percent {
+                                            Image(systemName: gradeIcon(grade))
+                                                .font(.caption)
+                                                .foregroundColor(gradeColor(grade))
+                                        }
                                     }
                                 }
                                 .padding(.vertical, 2)
@@ -173,8 +191,8 @@ struct CourseDetailView: View {
         }
     }
     
-    private func inclineColor(_ incline: Double) -> Color {
-        switch incline {
+    private func gradeColor(_ grade: Double) -> Color {
+        switch grade {
         case ..<(-2): return .blue      // Steep downhill
         case -2..<0: return .cyan       // Gentle downhill
         case 0: return .gray            // Flat
@@ -184,8 +202,8 @@ struct CourseDetailView: View {
         }
     }
     
-    private func inclineIcon(_ incline: Double) -> String {
-        switch incline {
+    private func gradeIcon(_ grade: Double) -> String {
+        switch grade {
         case ..<(-1): return "arrow.down.right"
         case -1..<1: return "arrow.right"
         default: return "arrow.up.right"

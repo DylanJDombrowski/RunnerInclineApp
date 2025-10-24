@@ -15,7 +15,8 @@ struct RunnerInclineAppApp: App {
 
     var body: some Scene {
         WindowGroup {
-            CourseListView()
+            ContentView()
+                .environmentObject(AuthenticationManager.shared)
         }
     }
 }

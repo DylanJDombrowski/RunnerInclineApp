@@ -51,20 +51,6 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp" WITH SCHEMA "extensions";
 
 
 
-
-CREATE OR REPLACE VIEW "public"."course_summary" AS
-SELECT
-    NULL::"uuid" AS "id",
-    NULL::"text" AS "name",
-    NULL::"text" AS "city",
-    NULL::double precision AS "distance_miles",
-    NULL::bigint AS "segment_count",
-    NULL::double precision AS "total_elevation_gain_ft",
-    NULL::boolean AS "verified";
-
-
-ALTER VIEW "public"."course_summary" OWNER TO "postgres";
-
 SET default_tablespace = '';
 
 SET default_table_access_method = "heap";
@@ -81,6 +67,7 @@ CREATE TABLE IF NOT EXISTS "public"."courses" (
     "source_link" "text",
     "verified" boolean DEFAULT false,
     "created_at" timestamp with time zone DEFAULT "now"(),
+    "created_by" "uuid",
     CONSTRAINT "courses_source_type_check" CHECK (("source_type" = ANY (ARRAY['strava'::"text", 'garmin'::"text", 'manual'::"text", 'pdf'::"text"])))
 );
 
@@ -90,13 +77,12 @@ ALTER TABLE "public"."courses" OWNER TO "postgres";
 
 CREATE TABLE IF NOT EXISTS "public"."segments" (
     "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
-    "course_id" "uuid",
-    "mile_start" double precision,
-    "mile_end" double precision,
-    "incline_percent" double precision,
-    "elevation_ft" double precision,
-    "grade_direction" "text",
-    CONSTRAINT "segments_grade_direction_check" CHECK (("grade_direction" = ANY (ARRAY['up'::"text", 'down'::"text", 'flat'::"text"])))
+    "course_id" "uuid" NOT NULL,
+    "segment_index" integer NOT NULL,
+    "distance_miles" double precision NOT NULL,
+    "elevation_ft" double precision NOT NULL,
+    "grade_percent" double precision,
+    "created_at" timestamp with time zone DEFAULT "now"()
 );
 
 
@@ -136,6 +122,10 @@ CREATE INDEX "courses_name_idx" ON "public"."courses" USING "btree" ("name");
 
 
 
+CREATE INDEX "idx_courses_created_by" ON "public"."courses" USING "btree" ("created_by");
+
+
+
 CREATE INDEX "idx_courses_name" ON "public"."courses" USING "btree" ("name");
 
 
@@ -144,25 +134,16 @@ CREATE INDEX "idx_segments_course_id" ON "public"."segments" USING "btree" ("cou
 
 
 
+CREATE INDEX "idx_segments_course_segment" ON "public"."segments" USING "btree" ("course_id", "segment_index");
+
+
+
 CREATE INDEX "idx_user_requests_status" ON "public"."user_requests" USING "btree" ("status");
 
 
 
-CREATE INDEX "segments_course_id_idx" ON "public"."segments" USING "btree" ("course_id");
-
-
-
-CREATE OR REPLACE VIEW "public"."course_summary" AS
- SELECT "c"."id",
-    "c"."name",
-    "c"."city",
-    "c"."distance_miles",
-    "count"("s"."id") AS "segment_count",
-    "c"."total_elevation_gain_ft",
-    "c"."verified"
-   FROM ("public"."courses" "c"
-     LEFT JOIN "public"."segments" "s" ON (("c"."id" = "s"."course_id")))
-  GROUP BY "c"."id";
+ALTER TABLE ONLY "public"."courses"
+    ADD CONSTRAINT "courses_created_by_fkey" FOREIGN KEY ("created_by") REFERENCES "auth"."users"("id") ON DELETE SET NULL;
 
 
 
@@ -176,7 +157,43 @@ ALTER TABLE ONLY "public"."user_requests"
 
 
 
-CREATE POLICY "Public read segments" ON "public"."segments" FOR SELECT USING (true);
+CREATE POLICY "Allow public to read segments for verified courses" ON "public"."segments" FOR SELECT USING ((EXISTS ( SELECT 1
+   FROM "public"."courses"
+  WHERE (("courses"."id" = "segments"."course_id") AND ("courses"."verified" = true)))));
+
+
+
+CREATE POLICY "Allow public to read verified courses" ON "public"."courses" FOR SELECT USING (("verified" = true));
+
+
+
+CREATE POLICY "Allow service role to insert segments" ON "public"."segments" FOR INSERT TO "service_role" WITH CHECK (true);
+
+
+
+CREATE POLICY "Allow users to create courses" ON "public"."courses" FOR INSERT TO "authenticated" WITH CHECK (("auth"."uid"() = "created_by"));
+
+
+
+CREATE POLICY "Allow users to read own courses" ON "public"."courses" FOR SELECT TO "authenticated" USING (("auth"."uid"() = "created_by"));
+
+
+
+CREATE POLICY "Allow users to read segments for own courses" ON "public"."segments" FOR SELECT TO "authenticated" USING ((EXISTS ( SELECT 1
+   FROM "public"."courses"
+  WHERE (("courses"."id" = "segments"."course_id") AND ("courses"."created_by" = "auth"."uid"())))));
+
+
+
+CREATE POLICY "Allow users to update own courses" ON "public"."courses" FOR UPDATE TO "authenticated" USING (("auth"."uid"() = "created_by")) WITH CHECK (("auth"."uid"() = "created_by"));
+
+
+
+CREATE POLICY "Authenticated users can create courses" ON "public"."courses" FOR INSERT TO "authenticated" WITH CHECK (("auth"."uid"() = "created_by"));
+
+
+
+CREATE POLICY "Public read access to courses" ON "public"."courses" FOR SELECT USING (true);
 
 
 
@@ -189,6 +206,10 @@ CREATE POLICY "Service role full access" ON "public"."courses" TO "service_role"
 
 
 CREATE POLICY "Users can insert requests" ON "public"."user_requests" FOR INSERT TO "authenticated" WITH CHECK (true);
+
+
+
+CREATE POLICY "Users can update own courses" ON "public"."courses" FOR UPDATE TO "authenticated" USING (("auth"."uid"() = "created_by")) WITH CHECK (("auth"."uid"() = "created_by"));
 
 
 
@@ -375,12 +396,6 @@ GRANT USAGE ON SCHEMA "public" TO "service_role";
 
 
 
-
-
-
-GRANT ALL ON TABLE "public"."course_summary" TO "anon";
-GRANT ALL ON TABLE "public"."course_summary" TO "authenticated";
-GRANT ALL ON TABLE "public"."course_summary" TO "service_role";
 
 
 

@@ -11,7 +11,7 @@ import Combine
 
 struct GPXUploadView: View {
     @StateObject private var viewModel = GPXUploadViewModel()
-    @StateObject private var authManager = AuthenticationManager()
+    @StateObject private var authManager = AuthenticationManager.shared
     @Environment(\.dismiss) private var dismiss
     
     @State private var courseName = ""
@@ -227,42 +227,74 @@ final class GPXUploadViewModel: ObservableObject {
     
     func uploadGPXFile(name: String, city: String?, distanceMiles: Double?) async {
         guard let fileData = selectedFileData,
-              let fileName = selectedFileName else { return }
+              let fileName = selectedFileName else { 
+            print("❌ Upload failed: No file selected")
+            statusMessage = "No file selected"
+            hasError = true
+            return 
+        }
         
         isUploading = true
         statusMessage = "Creating course..."
         hasError = false
+        print("🚀 Starting upload process...")
+        print("📝 Course name: \(name)")
+        print("🏙️ City: \(city ?? "N/A")")
+        print("📏 Distance: \(distanceMiles ?? 0.0) miles")
         
         do {
-            // 1. Create course entry in database
+            // Step 1: Create course entry in database
+            print("📊 Step 1: Creating course in database...")
             let course = try await SupabaseService.shared.createCourse(
                 name: name,
                 city: city,
                 distanceMiles: distanceMiles,
                 gpxUrl: nil  // Will be updated after upload
             )
+            print("✅ Step 1 Complete: Course created with ID: \(course.id)")
             
             statusMessage = "Uploading GPX file..."
             
-            // 2. Upload GPX file to storage
+            // Step 2: Upload GPX file to storage
+            print("☁️ Step 2: Uploading GPX file to storage...")
             let uniqueFileName = "\(course.id.uuidString)_\(fileName)"
+            print("📁 Unique filename: \(uniqueFileName)")
+            print("💾 File size: \(fileData.count) bytes")
+            
             let filePath = try await SupabaseService.shared.uploadGPXFile(
                 data: fileData,
                 fileName: uniqueFileName
             )
+            print("✅ Step 2 Complete: File uploaded to path: \(filePath)")
             
             statusMessage = "Processing elevation data..."
             
-            // 3. Trigger Edge Function to process GPX
+            // Step 3: Trigger Edge Function to process GPX
+            print("⚙️ Step 3: Triggering Edge Function...")
+            print("🔗 GPX path: \(filePath)")
+            print("🆔 Course ID: \(course.id)")
+            
             try await SupabaseService.shared.processGPXFile(
                 filePath: filePath,
                 courseId: course.id
             )
+            print("✅ Step 3 Complete: Edge Function triggered successfully")
             
             statusMessage = "Course uploaded successfully!"
             uploadCompleted = true
+            print("🎉 Upload process completed successfully!")
             
         } catch {
+            print("❌ Upload failed at some step:")
+            print("❌ Error: \(error)")
+            print("❌ Localized: \(error.localizedDescription)")
+            
+            // More detailed error information
+            if let supabaseError = error as? (any Error) {
+                print("❌ Error type: \(type(of: supabaseError))")
+                print("❌ Full error: \(String(describing: supabaseError))")
+            }
+            
             statusMessage = "Upload failed: \(error.localizedDescription)"
             hasError = true
         }

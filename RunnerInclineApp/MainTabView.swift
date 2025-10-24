@@ -21,6 +21,15 @@ struct MainTabView: View {
                 Text("Home")
             }
             
+            // My Courses Tab
+            NavigationStack {
+                MyCoursesView()
+            }
+            .tabItem {
+                Image(systemName: "map.fill")
+                Text("My Courses")
+            }
+            
             // Profile Tab
             NavigationStack {
                 ProfileView()
