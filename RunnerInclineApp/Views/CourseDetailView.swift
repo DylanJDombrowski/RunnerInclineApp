@@ -152,10 +152,7 @@ struct CourseDetailView: View {
                                             Text("\(grade, specifier: "%.1f")%")
                                                 .font(.subheadline.weight(.medium))
                                                 .foregroundColor(gradeColor(grade))
-                                        }
-                                    }
-                                        
-                                        if let grade = segment.grade_percent {
+                                            
                                             Image(systemName: gradeIcon(grade))
                                                 .font(.caption)
                                                 .foregroundColor(gradeColor(grade))

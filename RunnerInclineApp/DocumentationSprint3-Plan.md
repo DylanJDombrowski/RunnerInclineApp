@@ -1,10 +1,7 @@
-# Sprint 3 - Enhanced User Experience & Administration
-## 📅 Start Date: Next Development Session
+# 🗑️ DEPRECATED - See DocumentationSprint3-TreadmillSimulation.md
+This generic plan has been replaced with a focused **Treadmill Simulation Platform** vision.
 
----
-
-## 🎯 **Sprint 3 Goal**
-Transform the app from a functional MVP to a polished, user-friendly platform with admin capabilities and enhanced features.
+**New Plan**: DocumentationSprint3-TreadmillSimulation.md
 
 ---
 
