@@ -7,10 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		029095152EB19E7F00B4FAF8 /* BUILD-FIX-INSTRUCTIONS.md in Resources */ = {isa = PBXBuildFile; fileRef = 029095142EB19E7F00B4FAF8 /* BUILD-FIX-INSTRUCTIONS.md */; };
 		3E86CFF92EA4979600121F8A /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = 3E86CFF82EA4979600121F8A /* Supabase */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		029095142EB19E7F00B4FAF8 /* BUILD-FIX-INSTRUCTIONS.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "BUILD-FIX-INSTRUCTIONS.md"; sourceTree = "<group>"; };
 		3E86CFD32EA4895E00121F8A /* RunnerInclineApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RunnerInclineApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -53,6 +55,7 @@
 				3E86CFD52EA4895E00121F8A /* RunnerInclineApp */,
 				3E86CFF72EA4979600121F8A /* Frameworks */,
 				3E86CFD42EA4895E00121F8A /* Products */,
+				029095142EB19E7F00B4FAF8 /* BUILD-FIX-INSTRUCTIONS.md */,
 			);
 			sourceTree = "<group>";
 		};
@@ -139,6 +142,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				029095152EB19E7F00B4FAF8 /* BUILD-FIX-INSTRUCTIONS.md in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

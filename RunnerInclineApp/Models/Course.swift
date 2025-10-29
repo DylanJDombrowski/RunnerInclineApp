@@ -2,7 +2,7 @@
 //  Course.swift
 //  RunnerInclineApp
 //
-//  Created by Dylan Dombrowski on 10/18/25.
+//  Created by AI Assistant on 10/28/25.
 //
 
 import Foundation
@@ -14,9 +14,28 @@ struct Course: Identifiable, Codable {
     let distance_miles: Double?
     let total_elevation_gain_ft: Double?
     let gpx_url: String?
-    let source_type: String?
-    let source_link: String?
     let verified: Bool
-    let created_at: String?
-    let created_by: UUID?  // New field for user ownership
+    let created_by: UUID?
+    let created_at: Date
+    let updated_at: Date
+    
+    /// Computed property for display name
+    var displayName: String {
+        if let city = city {
+            return "\(name), \(city)"
+        }
+        return name
+    }
+    
+    /// Computed property for formatted distance
+    var formattedDistance: String {
+        guard let distance = distance_miles else { return "Unknown" }
+        return String(format: "%.1f mi", distance)
+    }
+    
+    /// Computed property for formatted elevation
+    var formattedElevation: String {
+        guard let elevation = total_elevation_gain_ft else { return "Unknown" }
+        return "\(Int(elevation)) ft"
+    }
 }

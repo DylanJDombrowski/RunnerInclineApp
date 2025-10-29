@@ -11,6 +11,7 @@ import Charts  // Apple’s Charts framework (built in since iOS 16)
 struct CourseDetailView: View {
     let course: Course
     @StateObject private var vm = SegmentViewModel()
+    @State private var showingTreadmillRun = false
     
     var body: some View {
         ScrollView {
@@ -170,6 +171,26 @@ struct CourseDetailView: View {
                         }
                     }
                 }
+                
+                // Start Run Button (if verified and has segments)
+                if course.verified && !vm.segments.isEmpty {
+                    Button {
+                        showingTreadmillRun = true
+                    } label: {
+                        Label("Start Run", systemImage: "play.fill")
+                            .font(.headline)
+                            .fontWeight(.semibold)
+                            .foregroundColor(.black)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 56)
+                            .background(Color("ActionGreen"))
+                            .clipShape(RoundedRectangle(cornerRadius: 16))
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                    .scaleEffect(1.0)
+                    .animation(.spring(response: 0.2, dampingFraction: 0.8), value: false)
+                    .padding(.vertical)
+                }
             }
             .padding()
         }
@@ -185,6 +206,9 @@ struct CourseDetailView: View {
         }
         .onAppear {
             vm.fetchSegments(for: course.id)
+        }
+        .fullScreenCover(isPresented: $showingTreadmillRun) {
+            TreadmillRunView(course: course)
         }
     }
     

@@ -75,6 +75,20 @@ CREATE TABLE IF NOT EXISTS "public"."courses" (
 ALTER TABLE "public"."courses" OWNER TO "postgres";
 
 
+CREATE TABLE IF NOT EXISTS "public"."pace_segments" (
+    "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
+    "course_id" "uuid" NOT NULL,
+    "segment_index" integer NOT NULL,
+    "distance_miles" double precision NOT NULL,
+    "recommended_pace_seconds_per_mile" integer NOT NULL,
+    "created_at" timestamp with time zone DEFAULT "now"(),
+    "updated_at" timestamp with time zone DEFAULT "now"()
+);
+
+
+ALTER TABLE "public"."pace_segments" OWNER TO "postgres";
+
+
 CREATE TABLE IF NOT EXISTS "public"."segments" (
     "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
     "course_id" "uuid" NOT NULL,
@@ -108,6 +122,11 @@ ALTER TABLE ONLY "public"."courses"
 
 
 
+ALTER TABLE ONLY "public"."pace_segments"
+    ADD CONSTRAINT "pace_segments_pkey" PRIMARY KEY ("id");
+
+
+
 ALTER TABLE ONLY "public"."segments"
     ADD CONSTRAINT "segments_pkey" PRIMARY KEY ("id");
 
@@ -130,6 +149,14 @@ CREATE INDEX "idx_courses_name" ON "public"."courses" USING "btree" ("name");
 
 
 
+CREATE INDEX "idx_pace_segments_course_id" ON "public"."pace_segments" USING "btree" ("course_id");
+
+
+
+CREATE INDEX "idx_pace_segments_course_segment" ON "public"."pace_segments" USING "btree" ("course_id", "segment_index");
+
+
+
 CREATE INDEX "idx_segments_course_id" ON "public"."segments" USING "btree" ("course_id");
 
 
@@ -147,6 +174,11 @@ ALTER TABLE ONLY "public"."courses"
 
 
 
+ALTER TABLE ONLY "public"."pace_segments"
+    ADD CONSTRAINT "pace_segments_course_id_fkey" FOREIGN KEY ("course_id") REFERENCES "public"."courses"("id") ON DELETE CASCADE;
+
+
+
 ALTER TABLE ONLY "public"."segments"
     ADD CONSTRAINT "segments_course_id_fkey" FOREIGN KEY ("course_id") REFERENCES "public"."courses"("id") ON DELETE CASCADE;
 
@@ -157,6 +189,12 @@ ALTER TABLE ONLY "public"."user_requests"
 
 
 
+CREATE POLICY "Allow public to read pace segments for verified courses" ON "public"."pace_segments" FOR SELECT USING ((EXISTS ( SELECT 1
+   FROM "public"."courses"
+  WHERE (("courses"."id" = "pace_segments"."course_id") AND ("courses"."verified" = true)))));
+
+
+
 CREATE POLICY "Allow public to read segments for verified courses" ON "public"."segments" FOR SELECT USING ((EXISTS ( SELECT 1
    FROM "public"."courses"
   WHERE (("courses"."id" = "segments"."course_id") AND ("courses"."verified" = true)))));
@@ -164,6 +202,10 @@ CREATE POLICY "Allow public to read segments for verified courses" ON "public"."
 
 
 CREATE POLICY "Allow public to read verified courses" ON "public"."courses" FOR SELECT USING (("verified" = true));
+
+
+
+CREATE POLICY "Allow service role to insert pace segments" ON "public"."pace_segments" FOR INSERT TO "service_role" WITH CHECK (true);
 
 
 
@@ -214,6 +256,9 @@ CREATE POLICY "Users can update own courses" ON "public"."courses" FOR UPDATE TO
 
 
 ALTER TABLE "public"."courses" ENABLE ROW LEVEL SECURITY;
+
+
+ALTER TABLE "public"."pace_segments" ENABLE ROW LEVEL SECURITY;
 
 
 ALTER TABLE "public"."segments" ENABLE ROW LEVEL SECURITY;
@@ -402,6 +447,12 @@ GRANT USAGE ON SCHEMA "public" TO "service_role";
 GRANT ALL ON TABLE "public"."courses" TO "anon";
 GRANT ALL ON TABLE "public"."courses" TO "authenticated";
 GRANT ALL ON TABLE "public"."courses" TO "service_role";
+
+
+
+GRANT ALL ON TABLE "public"."pace_segments" TO "anon";
+GRANT ALL ON TABLE "public"."pace_segments" TO "authenticated";
+GRANT ALL ON TABLE "public"."pace_segments" TO "service_role";
 
 
 

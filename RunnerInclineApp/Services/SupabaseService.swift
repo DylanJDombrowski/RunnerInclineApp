@@ -67,11 +67,10 @@ final class SupabaseService {
         print("📦 Payload: \(payload)")
         
         do {
-            let response = try await client.functions
+            try await client.functions
                 .invoke("process-gpx", options: .init(body: payload))
             
             print("✅ SupabaseService: Edge Function call successful")
-            print("📄 Response: \(String(describing: response))")
             
         } catch {
             print("❌ SupabaseService: Edge Function call failed")
@@ -134,6 +133,52 @@ final class SupabaseService {
             print("❌ SupabaseService: Course creation failed")
             print("❌ Error: \(error)")
             print("❌ Localized: \(error.localizedDescription)")
+            throw error
+        }
+    }
+    
+    /// Fetch pace segments for a course
+    func fetchPaceSegments(for courseId: UUID) async throws -> [PaceSegment] {
+        print("📊 SupabaseService: Fetching pace segments for course \(courseId)")
+        
+        do {
+            let response: [PaceSegment] = try await client
+                .from("pace_segments")
+                .select()
+                .eq("course_id", value: courseId)
+                .order("segment_index", ascending: true)
+                .execute()
+                .value
+            
+            print("✅ SupabaseService: Loaded \(response.count) pace segments")
+            return response
+            
+        } catch {
+            print("❌ SupabaseService: Failed to load pace segments")
+            print("❌ Error: \(error)")
+            throw error
+        }
+    }
+    
+    /// Fetch segments for a course
+    func fetchSegments(for courseId: UUID) async throws -> [Segment] {
+        print("📊 SupabaseService: Fetching segments for course \(courseId)")
+        
+        do {
+            let response: [Segment] = try await client
+                .from("segments")
+                .select()
+                .eq("course_id", value: courseId)
+                .order("segment_index", ascending: true)
+                .execute()
+                .value
+            
+            print("✅ SupabaseService: Loaded \(response.count) segments")
+            return response
+            
+        } catch {
+            print("❌ SupabaseService: Failed to load segments")
+            print("❌ Error: \(error)")
             throw error
         }
     }

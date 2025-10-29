@@ -290,10 +290,8 @@ final class GPXUploadViewModel: ObservableObject {
             print("❌ Localized: \(error.localizedDescription)")
             
             // More detailed error information
-            if let supabaseError = error as? (any Error) {
-                print("❌ Error type: \(type(of: supabaseError))")
-                print("❌ Full error: \(String(describing: supabaseError))")
-            }
+            print("❌ Error type: \(type(of: error))")
+            print("❌ Full error: \(String(describing: error))")
             
             statusMessage = "Upload failed: \(error.localizedDescription)"
             hasError = true

@@ -1,240 +1,204 @@
-# 🏃‍♂️ Sprint 3 - Treadmill Simulation Platform
-## 📅 Start Date: Now (October 23, 2025)
+🏃‍♂️ Sprint 3: The Treadmill Simulation Engine
+🎯 Vision: "The Data-Driven Athlete"
+This sprint executes the core vision from the new design document. We are building the single most important screen: the Live Treadmill Simulation.
 
----
+This sprint is not about refactoring old screens. It is about building the "killer feature" that defines the entire product. We will build this new feature to the exact specifications of the new "Glassmorphism" design system.
 
-## 🎯 **VISION: The Ultimate Treadmill Training Tool**
-> **"Experience the Boston Marathon hills, London's bridges, or NYC's inclines from your home gym"**
+Strategic Decisions Guiding This Sprint
+Curation over Community (v1.0): User uploads are disabled. The GPXUploadView and MyCoursesView will be hidden from the main user flow. This makes the app a premium, curated library, guaranteeing data quality.
 
-Transform Runner Incline into the **premier treadmill simulation platform** where runners can:
-- **Train on legendary marathon courses** with accurate elevation profiles
-- **Automatically adjust treadmill incline** in real-time during runs
-- **Build a comprehensive library** of world-famous racing routes
+New Feature First: We will build the new TreadmillRunView from scratch, using the new design system. Sprint 4 will be dedicated to refactoring the old screens (CourseListView, CourseDetailView) to match.
 
----
+Pace is Essential: The simulation must include "Recommended Pace" alongside incline.
 
-## 🏆 **THE BIG PICTURE: Historical Marathon Library**
+Watch is Post-v1: All focus is on the iPhone experience.
 
-### **Target Course Collection**
-- **🇺🇸 Boston Marathon** - The ultimate hill challenge
-- **🇬🇧 London Marathon** - Rolling Thames-side course  
-- **🇺🇸 NYC Marathon** - 5 borough variety
-- **🇺🇸 Chicago Marathon** - Fast and flat
-- **🇺🇸 Marine Corps Marathon** - DC monuments
-- **🇺🇸 Big Sur Marathon** - Coastal California beauty
-- **🇺🇸 Comrades Marathon** - Ultra distance hills
-- **🏃‍♀️ Half Marathon Classics** - 13.1 mile favorites
+💡 New Change That Comes to Mind: The "Pace Segment" Model
+Your request for "pace" is brilliant and requires a new data model. A GPX file only provides elevation. It has no concept of pace.
 
-### **Data Sources Strategy**
-1. **Official Race GPX** - Partner with race organizations
-2. **Strava Global Heatmap** - Crowdsourced accurate routes
-3. **Garmin Connect** - Device-recorded courses
-4. **User Contributions** - Community-verified routes
-5. **USATF Certified Courses** - Official measurements
+To solve this, we will introduce a new table, pace_segments, that perfectly mirrors the existing segments table.
 
----
+segments: (course_id, segment_index, distance_miles, elevation_ft, grade_percent)
 
-## 🚀 **SPRINT 3 PRIORITIES**
+pace_segments (NEW): (course_id, segment_index, distance_miles, recommended_pace_seconds_per_mile)
 
-### **Priority 1: Real GPX Data Pipeline** 🔥
-- [ ] **Remove Test GPX dependency** - Support real file uploads
-- [ ] **GPX file validation** - Ensure quality and accuracy
-- [ ] **Bulk upload system** - Admin tools for historical courses
-- [ ] **GPX optimization** - Clean and standardize route data
-- [ ] **Course metadata enrichment** - Auto-detect race names, distances, locations
+This allows us to create "Pace Strategies" (e.g., "3:00:00 BQ," "Negative Split") for each course, which an admin (us) will upload. This is a powerful, extensible data model.
 
-### **Priority 2: Treadmill Integration Ready** 🏃‍♂️
-- [ ] **Incline scheduling export** - Generate treadmill programs
-- [ ] **Real-time pacing data** - Mile splits with elevation changes
-- [ ] **Training recommendations** - Suggest workouts based on course difficulty
-- [ ] **Apple HealthKit integration** - Sync with fitness ecosystem
-- [ ] **Workout session tracking** - Log treadmill training sessions
+The New v1.0 User Flow
+MainTabView → CourseListView (Browse "Big 6" Marathons) → CourseDetailView (See full map) → START RUN → TreadmillRunView (The new simulation screen)
 
-### **Priority 3: Course Discovery & Search** 🔍
-- [ ] **Advanced search** - Filter by location, distance, elevation gain, difficulty
-- [ ] **Race calendar integration** - "Train for upcoming races"
-- [ ] **Difficulty scoring** - Rate courses by hill challenge (Easy → Death Valley)
-- [ ] **Similar courses** - "If you like Boston, try Berlin"
-- [ ] **Featured collections** - "Major Marathon Mondays", "Hill Training Tuesdays"
+🚀 Sprint 3 Core Features: The "Run" Screen
+1. New View: TreadmillRunView.swift
+This is the new "player" screen, presented modally when a user taps "Start Run" from CourseDetailView. It must be built using the new "Data-Driven Athlete" design system.
 
-### **Priority 4: Quality Assurance System** ✅
-- [ ] **Course verification workflow** - Admin approval process
-- [ ] **Community reporting** - Flag inaccurate or low-quality routes
-- [ ] **Data validation rules** - Ensure realistic elevation profiles
-- [ ] **Duplicate detection** - Merge similar courses automatically
-- [ ] **Quality scoring** - Rate courses by accuracy, completeness, popularity
+Background: Color("OffBlack")
 
----
+Data: Loads all Segments and PaceSegments for the selected Course.
 
-## 🛠️ **TECHNICAL IMPLEMENTATION**
+State: Manages the "run progress" (current distance, current segment_index).
 
-### **Real File Upload System**
-```swift
-// Enhanced GPX Upload with validation
-struct GPXUploadView {
-    - Support .gpx, .tcx, .fit files
-    - File size validation (max 50MB)
-    - Route preview before upload
-    - Metadata extraction (distance, elevation, time)
-    - Duplicate course detection
+Controls: "Pause," "Resume," and "End Run" buttons.
+
+2. New Component: LiveTreadmillDataView.swift (The "Glassmorphism" Module)
+This is the core component from your design doc.
+
+Style: A prominent Glassmorphism card (.ultraThinMaterial, Color("DarkGray") background, white border).
+
+"UP NEXT" Section (Headline):
+
+Text: "Incline to 4.0%"
+
+Text: "Pace to 7:10 /mi"
+
+Caption: "in 0.12 mi"
+
+"CURRENT" Section (Large Display):
+
+DataDisplay Font (Monospaced): "2.5%"
+
+DataDisplay Font (Monospaced): "7:30 /mi"
+
+Animation: All updating numbers must use .contentTransition(.numericText()).
+
+3. New Component: LiveElevationChartView.swift
+This component shows the full course chart and the runner's live progress.
+
+Library: import Charts
+
+Base Chart:
+
+AreaMark with LinearGradient from Color("ActionGreen").opacity(0.4) to clear.
+
+LineMark (outline) with Color("ActionGreen") and lineWidth of 2.
+
+Live Progress (The "Scrubber"):
+
+A vertical RuleMark at the viewModel.currentDistance.
+
+A PointMark (circle) following the LineMark to show the runner's exact position.
+
+This will animate as the run progresses.
+
+4. New ViewModel: TreadmillRunViewModel.swift
+This is the "engine" that "plays" the run.
+
+Input: Course object.
+
+Data: Fetches and holds [Segment] and [PaceSegment].
+
+Published Properties:
+
+@Published var currentDistance: Double
+
+@Published var currentIncline: Double
+
+@Published var currentPace: Double
+
+@Published var nextIncline: Double
+
+@Published var nextPace: Double
+
+@Published var distanceToNextChange: Double
+
+Logic: Uses a Timer to increment currentDistance. As the distance crosses a new segment_index, it updates all published properties, triggering the UI animations.
+
+🔌 Backend & Data Curation Tasks
+This feature is useless without data. This is the other half of the sprint.
+
+1. Admin Task: Seed the "Big 6" Marathon Library
+We must acquire and load the "gold standard" courses.
+
+[ ] Acquire GPX: Get high-quality GPX files for Boston, London, Berlin, Chicago, NYC, and Tokyo.
+
+[ ] Admin Upload: Manually upload these GPX files to the courses bucket in Supabase Storage.
+
+[ ] Admin Process: Manually invoke the process-gpx function for each new file to generate the segments.
+
+[ ] Admin Verify: Manually set verified = true in the courses table for these 6 courses.
+
+2. Admin Task: Create Pace Strategies
+[ ] Create pace_segments table: (See New Data Models below).
+
+[ ] Define Strategy: For the Boston Marathon, define a "3-hour BQ" pace strategy (a 6:52 min/mile pace).
+
+[ ] Admin Data Entry: Manually INSERT the pace data into the new pace_segments table for the Boston Marathon. (e.g., (course_id_boston, 0, 0.0, 412), (course_id_boston, 1, 0.1, 412), etc.)
+
+3. UI Task: Disable User Uploads
+[ ] MainTabView.swift: Remove MyCoursesView from the TabView. The v1.0 tabs will be Home and Profile.
+
+[ ] CourseListView.swift: Remove the + (upload) button from the toolbar.
+
+[ ] ProfileView.swift: (No action needed, auth flow is still required for app use).
+
+🏛️ New Data Models (Schema Changes)
+New Table: pace_segments
+This SQL must be run in the Supabase SQL Editor.
+
+SQL
+
+-- Create the pace_segments table
+CREATE TABLE public.pace_segments (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  course_id uuid REFERENCES public.courses(id) ON DELETE CASCADE NOT NULL,
+  segment_index integer NOT NULL,
+  distance_miles double precision NOT NULL,
+  recommended_pace_seconds_per_mile integer NOT NULL, -- e.g., 412
+  created_at timestamtz DEFAULT now()
+);
+
+-- Enable RLS
+ALTER TABLE public.pace_segments ENABLE ROW LEVEL SECURITY;
+
+-- RLS Policies (mirrors 'segments' table)
+CREATE POLICY "Allow public to read pace segments for verified courses"
+  ON public.pace_segments
+  FOR SELECT
+  USING (
+    EXISTS (
+      SELECT 1 FROM public.courses 
+      WHERE courses.id = pace_segments.course_id 
+      AND courses.verified = true
+    )
+  );
+
+CREATE POLICY "Allow service role to insert segments"
+  ON public.pace_segments
+  FOR INSERT
+  TO service_role
+  WITH CHECK (true);
+
+-- Create indexes
+CREATE INDEX idx_pace_segments_course_id ON public.pace_segments(course_id);
+CREATE INDEX idx_pace_segments_course_segment ON public.pace_segments(course_id, segment_index);
+New Model: PaceSegment.swift
+A new Swift model file to match this table.
+
+Swift
+
+// Models/PaceSegment.swift
+import Foundation
+
+struct PaceSegment: Identifiable, Codable {
+    let id: UUID
+    let course_id: UUID
+    let segment_index: Int
+    let distance_miles: Double
+    let recommended_pace_seconds_per_mile: Int
 }
-```
+🏁 Sprint 3 Success Criteria
+[ ] Feature Complete: A user can select the "Boston Marathon" from the CourseListView, tap "Start Run," and see the new TreadmillRunView.
 
-### **Advanced Search & Filtering**
-```swift
-struct CourseDiscoveryView {
-    - Location-based search (city, state, country)
-    - Distance range filtering (5K, 10K, Half, Full, Ultra)
-    - Elevation gain categories (<500ft, 500-1500ft, >1500ft)
-    - Difficulty rating (1-5 stars)
-    - Course type (Road, Trail, Track, Mixed)
-}
-```
+[ ] Simulation Works: The TreadmillRunView "plays" the run, with the LiveTreadmillDataView and LiveElevationChartView animating in sync.
 
-### **Treadmill Export System**
-```swift
-struct TreadmillExportView {
-    - Generate .tcx workout files
-    - Export to popular treadmill brands (NordicTrack, Peloton, etc.)
-    - Apple Health workout integration
-    - Custom pacing strategies (race pace, training pace)
-}
-```
+[ ] Data is Live: The "UP NEXT" module correctly displays incline and pace data fetched from the segments and pace_segments tables.
 
----
+[ ] Design is Met: The new TreadmillRunView perfectly implements the "Data-Driven Athlete" Glassmorphism design system (monospaced fonts, numeric transitions, etc.).
 
-## 📊 **DATA ACQUISITION PLAN**
+[ ] Uploads Disabled: The user-facing upload flow is completely hidden from the v1.0 UI.
 
-### **Phase 1: Seed Data (Week 1)**
-- [ ] **Boston Marathon** - Official GPX from BAA if available
-- [ ] **5 Major Marathons** - London, Berlin, Chicago, NYC, Tokyo
-- [ ] **Popular Half Marathons** - 10-15 well-known 13.1 races
-- [ ] **Local Favorites** - Regional classics to build community
+Sprint 4 Preview
+Refactor CourseListView and CourseDetailView to match the new "Data-Driven Athlete" design system.
 
-### **Phase 2: Crowdsourced Expansion (Week 2-3)**
-- [ ] **User upload incentives** - Gamify course contributions
-- [ ] **Strava integration** - Import popular segment routes
-- [ ] **Race director partnerships** - Official course data sharing
-- [ ] **Running club outreach** - Community group favorite routes
+Implement .matchedGeometryEffect for a seamless transition from CourseListView to CourseDetailView.
 
-### **Phase 3: Comprehensive Library (Week 4+)**
-- [ ] **International expansion** - European, Asian, Australian classics  
-- [ ] **Trail running courses** - Ultra and mountain running routes
-- [ ] **Historical races** - Discontinued but legendary courses
-- [ ] **Training-specific routes** - Hill repeats, tempo runs, etc.
-
----
-
-## 🎨 **USER EXPERIENCE VISION**
-
-### **The Perfect Training Flow**
-```
-1. Runner selects "Boston Marathon 2024"
-2. App shows: 26.2mi, 840ft gain, Difficulty: 4/5 ⭐⭐⭐⭐☆
-3. Preview: Elevation chart with famous hills marked
-4. Export: "Send to my treadmill" or "Start workout now"
-5. Training: Real-time incline changes matching Heartbreak Hill
-6. Progress: Track preparation for actual race day
-```
-
-### **Discovery Experience**
-```
-🏠 Home Tab: 
-   - "Featured This Week: London Marathon"
-   - "Train for Spring Races"
-   - "Most Popular This Month"
-   
-🔍 Discover Tab:
-   - Search by race name or city
-   - Filter by distance, difficulty, type
-   - "Races near me" location-based
-   
-💪 Training Tab:
-   - "My saved courses"
-   - "Training programs" (8-week Boston prep)
-   - "Workout history"
-```
-
----
-
-## 🎯 **SUCCESS METRICS**
-
-### **Content Growth**
-- [ ] **100+ verified courses** by end of Sprint 3
-- [ ] **50+ major marathons** represented
-- [ ] **90% accuracy rate** for course data
-- [ ] **<24hr verification** for new course submissions
-
-### **User Engagement**
-- [ ] **Daily course discoveries** > 500/day
-- [ ] **Treadmill workouts exported** > 100/week
-- [ ] **User course uploads** > 10/week
-- [ ] **Search success rate** > 85%
-
-### **Quality Standards**
-- [ ] **Course loading time** < 2 seconds
-- [ ] **Search response time** < 500ms
-- [ ] **Upload success rate** > 98%
-- [ ] **User-reported accuracy** > 4.5/5 stars
-
----
-
-## 🔥 **WEEK 1 FOCUS: GET REAL GPX DATA FLOWING**
-
-### **Day 1-2: Enhanced Upload System**
-- [ ] Remove "Use Test GPX" dependency
-- [ ] Support real .gpx file selection and upload
-- [ ] Add file validation (size, format, basic structure)
-- [ ] Improve upload progress feedback
-
-### **Day 3-4: Course Metadata & Search**
-- [ ] Auto-detect course distance from GPX data
-- [ ] Extract elevation gain/loss statistics
-- [ ] Build basic search functionality (name, city)
-- [ ] Add course difficulty calculation
-
-### **Day 5-7: Quality & Polish**
-- [ ] Course preview before upload approval
-- [ ] Enhanced course detail view with statistics
-- [ ] Admin tools for course verification
-- [ ] Initial seed data: 3-5 major marathon courses
-
----
-
-## 📋 **IMMEDIATE NEXT STEPS**
-
-### **Right Now** (Next 30 minutes)
-1. [ ] Test current app end-to-end (✅ Working!)
-2. [ ] Plan real GPX file sources for major marathons
-3. [ ] Design enhanced upload flow mockup
-4. [ ] Research treadmill integration APIs
-
-### **This Session** (Next 2-4 hours)
-1. [ ] Implement real GPX file upload (remove test data dependency)
-2. [ ] Add course distance/elevation auto-calculation
-3. [ ] Build basic search/filter functionality
-4. [ ] Create admin tools for bulk course approval
-
-### **This Week** 
-1. [ ] Source and upload 10+ major marathon GPX files
-2. [ ] Implement course difficulty scoring
-3. [ ] Add treadmill workout export (basic .tcx format)
-4. [ ] Launch to beta testers for feedback
-
----
-
-## 🏃‍♂️ **THE ULTIMATE GOAL**
-
-**"Every runner should be able to train on Heartbreak Hill without leaving home."**
-
-By the end of Sprint 3, Runner Incline becomes:
-- 🏆 **The definitive library** of world-famous running courses
-- 🏃‍♂️ **The go-to app** for treadmill training simulation  
-- 🌍 **The community hub** for sharing and discovering great routes
-- 📊 **The analytics platform** for understanding course difficulty and training needs
-
----
-
-**🚀 LET'S BUILD THE FUTURE OF TREADMILL TRAINING!**
-
-*Ready to help runners everywhere experience the world's greatest races from their home gym.*
+Begin planning for the watchOS haptic-feedback app.

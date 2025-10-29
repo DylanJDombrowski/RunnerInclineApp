@@ -171,24 +171,18 @@ struct CourseRowView: View {
                 
                 Spacer()
                 
-                if let createdAt = course.created_at {
-                    Text(formatDate(createdAt))
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                }
+                Text(formatDate(course.created_at))
+                    .font(.caption)
+                    .foregroundColor(.secondary)
             }
         }
         .padding(.vertical, 4)
     }
     
-    private func formatDate(_ dateString: String) -> String {
-        let formatter = ISO8601DateFormatter()
-        if let date = formatter.date(from: dateString) {
-            let displayFormatter = DateFormatter()
-            displayFormatter.dateStyle = .short
-            return displayFormatter.string(from: date)
-        }
-        return ""
+    private func formatDate(_ date: Date) -> String {
+        let displayFormatter = DateFormatter()
+        displayFormatter.dateStyle = .short
+        return displayFormatter.string(from: date)
     }
 }
 
