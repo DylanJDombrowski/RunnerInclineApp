@@ -183,7 +183,7 @@ struct CourseDetailView: View {
                             .foregroundColor(.black)
                             .frame(maxWidth: .infinity)
                             .frame(height: 56)
-                            .background(Color("ActionGreen"))
+                            .background(Color.green) // Temporary fix for ActionGreen
                             .clipShape(RoundedRectangle(cornerRadius: 16))
                     }
                     .buttonStyle(PlainButtonStyle())

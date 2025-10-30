@@ -51,6 +51,19 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp" WITH SCHEMA "extensions";
 
 
 
+
+CREATE OR REPLACE FUNCTION "public"."update_updated_at_column"() RETURNS "trigger"
+    LANGUAGE "plpgsql"
+    AS $$
+BEGIN
+   NEW.updated_at = now();
+   RETURN NEW;
+END;
+$$;
+
+
+ALTER FUNCTION "public"."update_updated_at_column"() OWNER TO "postgres";
+
 SET default_tablespace = '';
 
 SET default_table_access_method = "heap";
@@ -68,6 +81,7 @@ CREATE TABLE IF NOT EXISTS "public"."courses" (
     "verified" boolean DEFAULT false,
     "created_at" timestamp with time zone DEFAULT "now"(),
     "created_by" "uuid",
+    "updated_at" timestamp with time zone DEFAULT "now"(),
     CONSTRAINT "courses_source_type_check" CHECK (("source_type" = ANY (ARRAY['strava'::"text", 'garmin'::"text", 'manual'::"text", 'pdf'::"text"])))
 );
 
@@ -166,6 +180,10 @@ CREATE INDEX "idx_segments_course_segment" ON "public"."segments" USING "btree" 
 
 
 CREATE INDEX "idx_user_requests_status" ON "public"."user_requests" USING "btree" ("status");
+
+
+
+CREATE OR REPLACE TRIGGER "set_courses_updated_at" BEFORE UPDATE ON "public"."courses" FOR EACH ROW EXECUTE FUNCTION "public"."update_updated_at_column"();
 
 
 
@@ -426,6 +444,12 @@ GRANT USAGE ON SCHEMA "public" TO "service_role";
 
 
 
+
+
+
+GRANT ALL ON FUNCTION "public"."update_updated_at_column"() TO "anon";
+GRANT ALL ON FUNCTION "public"."update_updated_at_column"() TO "authenticated";
+GRANT ALL ON FUNCTION "public"."update_updated_at_column"() TO "service_role";
 
 
 
