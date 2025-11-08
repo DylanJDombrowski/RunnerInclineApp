@@ -7,22 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		029095152EB19E7F00B4FAF8 /* BUILD-FIX-INSTRUCTIONS.md in Resources */ = {isa = PBXBuildFile; fileRef = 029095142EB19E7F00B4FAF8 /* BUILD-FIX-INSTRUCTIONS.md */; };
-		029095232EB31BC500B4FAF8 /* DocsSprint3-COMPLETE-Documentation.md in Resources */ = {isa = PBXBuildFile; fileRef = 029095222EB31BC500B4FAF8 /* DocsSprint3-COMPLETE-Documentation.md */; };
-		029095252EB31BF900B4FAF8 /* DocsSprint4-Plus-Roadmap.md in Resources */ = {isa = PBXBuildFile; fileRef = 029095242EB31BF900B4FAF8 /* DocsSprint4-Plus-Roadmap.md */; };
-		029095272EB31C3E00B4FAF8 /* DocsTechnical-Architecture.md in Resources */ = {isa = PBXBuildFile; fileRef = 029095262EB31C3E00B4FAF8 /* DocsTechnical-Architecture.md */; };
-		029095292EB31C8900B4FAF8 /* DocsDevelopment-Guide.md in Resources */ = {isa = PBXBuildFile; fileRef = 029095282EB31C8900B4FAF8 /* DocsDevelopment-Guide.md */; };
-		0290952B2EB31CB200B4FAF8 /* DocsREADME.md in Resources */ = {isa = PBXBuildFile; fileRef = 0290952A2EB31CB200B4FAF8 /* DocsREADME.md */; };
 		3E86CFF92EA4979600121F8A /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = 3E86CFF82EA4979600121F8A /* Supabase */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		029095142EB19E7F00B4FAF8 /* BUILD-FIX-INSTRUCTIONS.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "BUILD-FIX-INSTRUCTIONS.md"; sourceTree = "<group>"; };
-		029095222EB31BC500B4FAF8 /* DocsSprint3-COMPLETE-Documentation.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "DocsSprint3-COMPLETE-Documentation.md"; sourceTree = "<group>"; };
-		029095242EB31BF900B4FAF8 /* DocsSprint4-Plus-Roadmap.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "DocsSprint4-Plus-Roadmap.md"; sourceTree = "<group>"; };
-		029095262EB31C3E00B4FAF8 /* DocsTechnical-Architecture.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "DocsTechnical-Architecture.md"; sourceTree = "<group>"; };
-		029095282EB31C8900B4FAF8 /* DocsDevelopment-Guide.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "DocsDevelopment-Guide.md"; sourceTree = "<group>"; };
-		0290952A2EB31CB200B4FAF8 /* DocsREADME.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = DocsREADME.md; sourceTree = "<group>"; };
 		3E86CFD32EA4895E00121F8A /* RunnerInclineApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RunnerInclineApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -37,6 +25,11 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		027476982EBF7E5D0028F397 /* Docs */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Docs;
+			sourceTree = "<group>";
+		};
 		3E86CFD52EA4895E00121F8A /* RunnerInclineApp */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
@@ -65,12 +58,7 @@
 				3E86CFD52EA4895E00121F8A /* RunnerInclineApp */,
 				3E86CFF72EA4979600121F8A /* Frameworks */,
 				3E86CFD42EA4895E00121F8A /* Products */,
-				029095142EB19E7F00B4FAF8 /* BUILD-FIX-INSTRUCTIONS.md */,
-				029095222EB31BC500B4FAF8 /* DocsSprint3-COMPLETE-Documentation.md */,
-				029095242EB31BF900B4FAF8 /* DocsSprint4-Plus-Roadmap.md */,
-				029095262EB31C3E00B4FAF8 /* DocsTechnical-Architecture.md */,
-				029095282EB31C8900B4FAF8 /* DocsDevelopment-Guide.md */,
-				0290952A2EB31CB200B4FAF8 /* DocsREADME.md */,
+				027476982EBF7E5D0028F397 /* Docs */,
 			);
 			sourceTree = "<group>";
 		};
@@ -105,6 +93,7 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
+				027476982EBF7E5D0028F397 /* Docs */,
 				3E86CFD52EA4895E00121F8A /* RunnerInclineApp */,
 			);
 			name = RunnerInclineApp;
@@ -157,12 +146,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0290952B2EB31CB200B4FAF8 /* DocsREADME.md in Resources */,
-				029095252EB31BF900B4FAF8 /* DocsSprint4-Plus-Roadmap.md in Resources */,
-				029095232EB31BC500B4FAF8 /* DocsSprint3-COMPLETE-Documentation.md in Resources */,
-				029095292EB31C8900B4FAF8 /* DocsDevelopment-Guide.md in Resources */,
-				029095272EB31C3E00B4FAF8 /* DocsTechnical-Architecture.md in Resources */,
-				029095152EB19E7F00B4FAF8 /* BUILD-FIX-INSTRUCTIONS.md in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
