@@ -105,9 +105,9 @@ pace_segments (
 ```
 
 #### **Row Level Security (RLS)**
-- **Public read access** for verified courses only
-- **User ownership** for unverified courses  
-- **Service role** permissions for admin operations
+- Public read access for all `verified = true` courses.
+- Admin-only write access (handled via a secure admin user account).
+- Authenticated user read access for their "My Library" (future).
 - **Proper indexing** on course_id and segment_index
 
 ### **Swift Data Models**
