@@ -37,13 +37,13 @@ struct CourseListView: View {
                 }
             }
             .navigationTitle("Marathon Courses")
-            .toolbar {
-                ToolbarItem(placement: .primaryAction) {
-                    Button(action: { showingUpload = true }) {
-                        Image(systemName: "plus")
-                    }
-                }
-            }
+//            .toolbar {
+//                ToolbarItem(placement: .primaryAction) {
+//                    Button(action: { showingUpload = true }) {
+//                        Image(systemName: "plus")
+//                    }
+//                }
+//            }
             .refreshable {
                 vm.fetchCourses()
             }

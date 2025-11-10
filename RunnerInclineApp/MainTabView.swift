@@ -26,8 +26,8 @@ struct MainTabView: View {
                 MyCoursesView()
             }
             .tabItem {
-                Image(systemName: "map.fill")
-                Text("My Courses")
+                Image(systemName: "cart.fill")
+                Text("My Library")
             }
             
             // Profile Tab

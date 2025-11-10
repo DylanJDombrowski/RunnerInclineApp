@@ -19,6 +19,7 @@ final class CourseViewModel: ObservableObject {
                 let response: [Course] = try await SupabaseService.shared.client
                     .from("courses")
                     .select()
+                    .eq("verified", value: true)
                     .execute()
                     .value
                 self.courses = response
